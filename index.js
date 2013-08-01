@@ -1,31 +1,34 @@
 var fs = require('fs')
-var config = {
-  ns: 'boot'
-, filename: __filename
-, scripts: {
-    dropdown: require('./dropdown')
-  , option: require('./dropdown/option')
-  , modal: require('./modal')
-  , tabs: require('./tabs')
-  , tab: {}
-  }
-}
+  , path = require('path')
+  , exists = (fs && fs.existsSync) || (path && path.existsSync) || function (p) { return false; }
+  , lessRoot = exists(__dirname + '/node_modules/bootstrap') ?
+    __dirname + '/node_modules/bootstrap'
+  : __dirname + '/internal_bootstrap/less/'
+  , config = {
+      ns: 'boot'
+    , filename: __filename
+    , scripts: {
+        dropdown: require('./dropdown')
+      , option: require('./dropdown/option')
+      , modal: require('./modal')
+      , tabs: require('./tabs')
+      , tab: {}
+      }
+    }
 
-module.exports = function(app, options) {
+module.exports = boot
+boot.decorate = 'derby'
+
+function boot(derby, options) {
   var outConfig = Object.create(config)
-  var info = fs. fs.statSync(__dirname + '/node_modules/bootstrap')
-  if (info && info.isDirectory())
-    lessRoot = __dirname + '/node_modules/bootstrap'
-  else
-    lessRoot = __dirname + '/internal_bootstrap/less/'
+    , styles, outStyles, i, len, style
 
-  var outStyles
   if (options && 'styles' in options) {
-    var styles = options.styles
+    styles = options.styles
     if (typeof styles === 'string') styles = [styles]
     if (Array.isArray(styles)) {
       outStyles = []
-      for (var i = 0, len = styles.length; i < len; i++) {
+      for (i = 0, len = styles.length; i < len; i++) {
         outStyles.push(lessRoot + styles[i]) 
       }
     }
@@ -33,5 +36,6 @@ module.exports = function(app, options) {
     outStyles = lessRoot + 'bootstrap'
   }
   outConfig.styles = outStyles
-  app.createLibrary(outConfig, options)
+  derby.createLibrary(outConfig, options)
+  return this
 }

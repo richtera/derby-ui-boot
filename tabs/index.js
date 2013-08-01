@@ -11,7 +11,7 @@ exports.init = function(model) {
     this.select()
   })
 
-  current.on('change', function(name) {
+  current.on('set', function(name) {
     var items = tabs.get()
       , i = items && items.length
       , tab
